@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Link, NavLink, Outlet } from "react-router-dom";
 
 export default function AdminLayout() {
   return (
@@ -41,19 +41,15 @@ export default function AdminLayout() {
                 </svg>
                 <span className="sr-only">Toggle sidebar</span>
               </button>
-              <a
-                href="https://flowbite.com"
+              <Link
+                to="https://flowbite.com"
                 className="flex items-center justify-between mr-4"
               >
-                <img
-                  src="https://flowbite.s3.amazonaws.com/logo.svg"
-                  className="mr-3 h-8"
-                  alt="Flowbite Logo"
-                />
-                <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">
-                  Flowbite
+                <i className="fa-sharp fa-solid fa-book-open-reader fa-2xl" style={{ color: "#0062ff" }}></i>
+                <span className="self-center text-2xl ml-2 font-bold whitespace-nowrap dark:text-white">
+                  BookSales
                 </span>
-              </a>
+              </Link>
             </div>
             <div className="flex items-center lg:order-2">
               <button
@@ -110,12 +106,12 @@ export default function AdminLayout() {
                   aria-labelledby="dropdown"
                 >
                   <li>
-                    <a
-                      href="#"
+                    <Link
+                      to="#"
                       className="block py-2 px-4 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                     >
                       Sign out
-                    </a>
+                    </Link>
                   </li>
                 </ul>
               </div>
@@ -133,9 +129,16 @@ export default function AdminLayout() {
           <div className="overflow-y-auto py-5 px-3 h-full bg-white dark:bg-gray-800">
             <ul className="space-y-2">
               <li>
-                <a
-                  href="admin"
-                  className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                <NavLink
+                  to="admin"
+                  className={({ isActive }) =>
+                    `flex items-center p-2 text-base font-medium rounded-lg group transition duration-75
+                    ${
+                      isActive
+                        ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
+                        : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`
+                  }
                 >
                   <svg
                     aria-hidden="true"
@@ -148,12 +151,20 @@ export default function AdminLayout() {
                     <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z"></path>
                   </svg>
                   <span className="ml-3">Overview</span>
-                </a>
+                </NavLink>
               </li>
+
               <li>
-                <a
-                  href="/admin/users"
-                  className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
+                <NavLink
+                  to="/admin/users"
+                  className={({ isActive }) =>
+                    `flex items-center p-2 text-base font-medium rounded-lg transition duration-75 group
+                    ${
+                      isActive
+                        ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
+                        : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`
+                  }
                 >
                   <svg
                     aria-hidden="true"
@@ -170,12 +181,20 @@ export default function AdminLayout() {
                     ></path>
                   </svg>
                   <span className="ml-3">Users</span>
-                </a>
+                </NavLink>
               </li>
+
               <li>
-                <a
-                  href="/admin/authors"
-                  className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
+                <NavLink
+                  to="/admin/authors"
+                  className={({ isActive }) =>
+                    `flex items-center p-2 text-base font-medium rounded-lg transition duration-75 group
+                    ${
+                      isActive
+                        ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
+                        : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`
+                  }
                 >
                   <svg
                     aria-hidden="true"
@@ -192,12 +211,20 @@ export default function AdminLayout() {
                     ></path>
                   </svg>
                   <span className="ml-3">Authors</span>
-                </a>
+                </NavLink>
               </li>
+
               <li>
-                <a
-                  href="/admin/genres"
-                  className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
+                <NavLink
+                  to="/admin/genres"
+                  className={({ isActive }) =>
+                    `flex items-center p-2 text-base font-medium rounded-lg transition duration-75 group
+                    ${
+                      isActive
+                        ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
+                        : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`
+                  }
                 >
                   <svg
                     aria-hidden="true"
@@ -214,15 +241,22 @@ export default function AdminLayout() {
                     ></path>
                   </svg>
                   <span className="ml-3">Genres</span>
-                </a>
+                </NavLink>
               </li>
             </ul>
 
-            <ul className="pt-5 mt-5 space-y-2 borderT border-gray-200 dark:border-gray-700">
+            <ul className="pt-5 mt-5 space-y-2 border-t border-gray-200 dark:border-gray-700">
               <li>
-                <a
-                  href="/admin/books"
-                  className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
+                <NavLink
+                  to="/admin/books"
+                  className={({ isActive }) =>
+                    `flex items-center p-2 text-base font-medium rounded-lg transition duration-75 group
+                    ${
+                      isActive
+                        ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
+                        : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`
+                  }
                 >
                   <svg
                     aria-hidden="true"
@@ -239,12 +273,20 @@ export default function AdminLayout() {
                     ></path>
                   </svg>
                   <span className="ml-3">Books</span>
-                </a>
+                </NavLink>
               </li>
+
               <li>
-                <a
-                  href="/admin/transactions"
-                  className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
+                <NavLink
+                  to="/admin/transactions"
+                  className={({ isActive }) =>
+                    `flex items-center p-2 text-base font-medium rounded-lg transition duration-75 group
+                    ${
+                      isActive
+                        ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
+                        : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`
+                  }
                 >
                   <svg
                     aria-hidden="true"
@@ -260,12 +302,20 @@ export default function AdminLayout() {
                     ></path>
                   </svg>
                   <span className="ml-3">Transaction</span>
-                </a>
+                </NavLink>
               </li>
+
               <li>
-                <a
-                  href="#"
-                  className="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg transition duration-75 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
+                <NavLink
+                  to="/admin/help"
+                  className={({ isActive }) =>
+                    `flex items-center p-2 text-base font-medium rounded-lg transition duration-75 group
+                    ${
+                      isActive
+                        ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
+                        : 'text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`
+                  }
                 >
                   <svg
                     aria-hidden="true"
@@ -281,7 +331,7 @@ export default function AdminLayout() {
                     ></path>
                   </svg>
                   <span className="ml-3">Help</span>
-                </a>
+                </NavLink>
               </li>
             </ul>
           </div>
