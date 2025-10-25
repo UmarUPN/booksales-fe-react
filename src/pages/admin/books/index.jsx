@@ -1,40 +1,15 @@
-// import { useEffect, useState } from "react";
-// import { getBooks } from "../../../_services/books";
-// import { getGenres } from "../../../_services/genres";
-
 import { useAuthors } from "../../../_hooks/useAuthors";
 import { useGenres } from "../../../_hooks/useGenres";
 import { useBooks } from "../../../_hooks/useBooks";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { deleteBook } from "../../../_services/books";
 
 export default function AdminBooks() {
-  // const [books, setBooks] = useState([]);
-  // const [genres, setGenres] = useState([]);
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     const [booksData, genresData] = await Promise.all([
-  //       getBooks(),
-  //       getGenres(),
-  //     ])
-
-  //     setBooks(booksData)
-  //     setGenres(genresData)
-  //   }
-
-  //   fetchData()
-  // }, [])
-
-  // const getGenreName = (id) => {
-  //   const genre = genres.find((g) => g.id === id);
-  //   return genre ? genre.name : "Unknown Genre";
-  // }
-
   const [openDropdownId, setOpenDropdownId] = useState(null);
   const { getAuthorName, loading: loadingAuthors} = useAuthors();
   const { getGenreName, loading: loadingGenres } = useGenres();
-  const { books, loading: loadingBooks } = useBooks();
+  const { books, setBooks, loading: loadingBooks } = useBooks();
   
   const loading = loadingAuthors || loadingGenres || loadingBooks;
   if (loading) {
@@ -47,6 +22,15 @@ export default function AdminBooks() {
 
   const toggleDropdown = (id) => {
     setOpenDropdownId(openDropdownId === id ? null : id)
+  }
+  
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this book?");
+
+    if (confirmDelete) {
+      await deleteBook(id);
+      setBooks(books.filter(book => book.id !== id));
+    }
   }
 
   return (
@@ -141,7 +125,7 @@ export default function AdminBooks() {
                 <tbody>
 
                   { books.length > 0 
-                    ?
+                    ? (
                       books.map((book) => (
                         <tr key={book.id} className="border-b dark:border-gray-700">
                           <th
@@ -185,7 +169,7 @@ export default function AdminBooks() {
                               >
                                 <li>
                                   <Link
-                                    to="#"
+                                    to={`/admin/books/edit/${book.id}`}
                                     className="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                                   >
                                     Edit
@@ -193,12 +177,12 @@ export default function AdminBooks() {
                                 </li>
                               </ul>
                               <div className="py-1">
-                                <Link
-                                  to="#"
-                                  className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
+                                <span
+                                  onClick={() => handleDelete(book.id)}
+                                  className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white cursor-pointer"
                                 >
                                   Delete
-                                </Link>
+                                </span>
                               </div>
                             </div>
                             )}
@@ -207,15 +191,16 @@ export default function AdminBooks() {
                           </td>
                         </tr>
                       ))
-                    :
-                      (<tr className="border-b dark:border-gray-700">
+                    ) : (
+                      <tr className="border-b dark:border-gray-700">
                         <th
                           scope="row"
                           className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                         >
                           Data Not Found!
                         </th>
-                      </tr>)
+                      </tr>
+                    )
                   }
                   
                 </tbody>

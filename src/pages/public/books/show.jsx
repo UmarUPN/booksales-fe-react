@@ -1,4 +1,45 @@
+import { useParams } from "react-router-dom";
+import { useGenres } from "../../../_hooks/useGenres";
+import { useAuthors } from "../../../_hooks/useAuthors";
+import { useEffect, useState } from "react";
+import { showBook } from "../../../_services/books";
+import { bookImageStorage } from "../../../_api";
+
 export default function ShowBook() {
+  const { id } = useParams()
+
+  const { getGenreName, loading:loadingGenres } = useGenres();
+  const { getAuthorName, loading:loadingAuthors } = useAuthors();
+  const [book, setBook] = useState([])
+  
+  const [loadingData, setLoadingData] = useState(true)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [bookData] = await Promise.all([showBook(id)]);
+
+        setBook(bookData)
+      } catch (error) {
+        console.error("Failed to fetch book:", error);
+      } finally {
+        setLoadingData(false);
+      }
+    };
+
+    fetchData();
+  }, [id])
+  
+
+  const loading = loadingAuthors || loadingGenres || loadingData;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-gray-500 text-lg">Loading...</p>
+      </div>
+    )
+  }
+
   return (
     <>
       <section className="py-8 bg-white md:py-16 dark:bg-gray-900 antialiased">
@@ -6,25 +47,36 @@ export default function ShowBook() {
           <div className="lg:grid lg:grid-cols-2 lg:gap-8 xl:gap-16">
             <div className="shrink-0 max-w-md lg:max-w-lg mx-auto">
               <img
-                class="w-full dark:hidden"
-                src="https://flowbite.s3.amazonaws.com/blocks/e-commerce/imac-front.svg"
-                alt=""
-              />
-              <img
-                class="w-full hidden dark:block"
-                src="https://flowbite.s3.amazonaws.com/blocks/e-commerce/imac-front-dark.svg"
-                alt=""
+                className="w-full dark:hidden"
+                src={
+                  book.cover_photo
+                  ? `${bookImageStorage}/books/${book.cover_photo}`
+                  : `${bookImageStorage}/book-cover-placeholder.png`
+                }
+                alt="Book cover"
               />
             </div>
 
             <div className="mt-6 sm:mt-8 lg:mt-0">
               <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">
-                Apple iMac 24" All-In-One Computer, Apple M1, 8GB RAM, 256GB
-                SSD, Mac OS, Pink
+                {book.title}
               </h1>
+              
+              <div className="mt-2">
+                <p className="text-lg text-gray-700 dark:text-gray-300">
+                  <span className="font-medium">Author:</span> {getAuthorName(book.author_id)}
+                </p>
+              </div>
+
+              <div className="mt-1">
+                <p className="text-lg text-gray-700 dark:text-gray-300">
+                  <span className="font-medium">Genre:</span> {getGenreName(book.genre_id)}
+                </p>
+              </div>
+
               <div className="mt-4 sm:items-center sm:gap-4 sm:flex">
                 <p className="text-2xl font-extrabold text-gray-900 sm:text-3xl dark:text-white">
-                  $1,249.99
+                  Rp{book.price}
                 </p>
 
                 <div className="flex items-center gap-2 mt-2 sm:mt-0">
@@ -101,11 +153,11 @@ export default function ShowBook() {
                 <a
                   href="#"
                   title=""
-                  class="text-white mt-4 sm:mt-0 bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800 flex items-center justify-center"
+                  className="text-white mt-4 sm:mt-0 bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-indigo-600 dark:hover:bg-indigo-700 focus:outline-none dark:focus:ring-indigo-800 flex items-center justify-center"
                   role="button"
                 >
                   <svg
-                    class="w-5 h-5 -ms-2 me-2"
+                    className="w-5 h-5 -ms-2 me-2"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"
@@ -115,9 +167,9 @@ export default function ShowBook() {
                   >
                     <path
                       stroke="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
                       d="M4 4h1.5L8 16m0 0h8m-8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm.75-3H7.5M11 7H6.312M17 4v6m-3-3h6"
                     />
                   </svg>
@@ -127,18 +179,10 @@ export default function ShowBook() {
 
               <hr className="my-6 md:my-8 border-gray-200 dark:border-gray-800" />
 
-              <p class="mb-6 text-gray-500 dark:text-gray-400">
-                Studio quality three mic array for crystal clear calls and voice
-                recordings. Six-speaker sound system for a remarkably robust and
-                high-quality audio experience. Up to 256GB of ultrafast SSD
-                storage.
+              <p className="mb-6 text-gray-500 dark:text-gray-400">
+                {book.description}
               </p>
 
-              <p class="text-gray-500 dark:text-gray-400">
-                Two Thunderbolt USB 4 ports and up to two USB 3 ports. Ultrafast
-                Wi-Fi 6 and Bluetooth 5.0 wireless. Color matched Magic Mouse
-                with Magic Keyboard or Magic Keyboard with Touch ID.
-              </p>
             </div>
           </div>
         </div>

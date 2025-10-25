@@ -1,10 +1,11 @@
 import { useAuthors } from "../../../_hooks/useAuthors";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { deleteAuthor } from "../../../_services/authors";
 
 export default function AdminAuthors() {
   const [openDropdownId, setOpenDropdownId] = useState(null);
-  const { authors, loading} = useAuthors();
+  const { authors, setAuthors, loading} = useAuthors();
   
   if (loading) {
     return (
@@ -16,6 +17,15 @@ export default function AdminAuthors() {
 
   const toggleDropdown = (id) => {
     setOpenDropdownId(openDropdownId === id ? null : id)
+  }
+
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this author?");
+
+    if (confirmDelete) {
+      await deleteAuthor(id);
+      setAuthors(authors.filter(author => author.id !== id));
+    }
   }
 
   return (
@@ -101,7 +111,7 @@ export default function AdminAuthors() {
                 <tbody>
 
                   { authors.length > 0 
-                    ?
+                    ? (
                       authors.map((author) => (
                         <tr key={author.id} className="border-b dark:border-gray-700">
                           <th
@@ -142,7 +152,7 @@ export default function AdminAuthors() {
                               >
                                 <li>
                                   <Link
-                                    to="#"
+                                    to={`/admin/authors/edit/${author.id}`}
                                     className="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                                   >
                                     Edit
@@ -150,12 +160,12 @@ export default function AdminAuthors() {
                                 </li>
                               </ul>
                               <div className="py-1">
-                                <Link
-                                  to="#"
-                                  className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
+                                <span
+                                  onClick={() => handleDelete(author.id)}
+                                  className="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white cursor-pointer"
                                 >
                                   Delete
-                                </Link>
+                                </span>
                               </div>
                             </div>
                             )}
@@ -164,15 +174,16 @@ export default function AdminAuthors() {
                           </td>
                         </tr>
                       ))
-                    :
-                      (<tr className="border-b dark:border-gray-700">
+                    ) : (
+                      <tr className="border-b dark:border-gray-700">
                         <th
                           scope="row"
                           className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                         >
                           Data Not Found!
                         </th>
-                      </tr>)
+                      </tr>
+                    )
                   }
                   
                 </tbody>

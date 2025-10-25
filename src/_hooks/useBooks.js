@@ -23,5 +23,5 @@ export function useBooks() {
     fetchData()
   }, [])
   
-  return { books, loading };
+  return { books, setBooks, loading };
 }

@@ -26,5 +26,5 @@ export function useGenres() {
     return genre ? genre.name : "Unknown Genre";
   };
   
-  return { genres, loading, getGenreName };
+  return { genres, setGenres, loading, getGenreName };
 }

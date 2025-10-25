@@ -25,5 +25,5 @@ export function useAuthors() {
     return author ? author.name : "Unknown Author";
   };
 
-  return { authors, loading, getAuthorName };
+  return { authors, setAuthors, loading, getAuthorName };
 }
