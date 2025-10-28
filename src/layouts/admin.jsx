@@ -1,6 +1,69 @@
-import { Link, NavLink, Outlet } from "react-router-dom";
+import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
+import { logout, useDecodeToken} from "../_services/auth";
+import { useEffect, useState } from "react";
 
 export default function AdminLayout() {
+  const navigate = useNavigate()
+  // const token = localStorage.getItem("accessToken")
+  // const decodedData = useDecodeToken(token)
+  const decodedData = useDecodeToken(localStorage.getItem("accessToken"))
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [loadingLogout, setLoadingLogout] = useState(false)
+
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken")
+    const userInfo = localStorage.getItem("userInfo")
+
+    // Kalau token/userInfo tidak ada, arahkan ke login
+    if (!token || !userInfo) {
+      navigate("/login")
+      return
+    }
+
+    try {
+      const parsedUser = JSON.parse(userInfo)
+      const role = parsedUser?.role?.toLowerCase()
+
+      // Redirect sesuai role
+      if (role !== "admin") {
+        navigate("/")
+      }
+    } catch (err) {
+      console.error("Error parsing userInfo:", err)
+      navigate("/login")
+    }
+  }, [decodedData, navigate])
+
+  // const handleLogout = async () => {
+  //   if (token) {
+  //     await logout({ token })
+  //     localStorage.removeItem("userInfo")
+  //   }
+  //   navigate("/login")
+  // }
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen)
+  }
+
+  const handleLogout = async () => {
+    setLoadingLogout(true)
+    const token = localStorage.getItem("accessToken")
+
+    if (token) {
+      try {
+        await logout({ token })
+      } catch (err) {
+        console.error("Error saat logout:", err)
+      } finally {
+        localStorage.removeItem("accessToken")
+        localStorage.removeItem("userInfo")
+        setLoadingLogout(false)
+        navigate("/login")
+      }
+    }
+  }
+
   return (
     <>
       <div className="antialiased bg-gray-50 dark:bg-gray-900">
@@ -54,32 +117,10 @@ export default function AdminLayout() {
             <div className="flex items-center lg:order-2">
               <button
                 type="button"
-                data-drawer-toggle="drawer-navigation"
-                aria-controls="drawer-navigation"
-                className="p-2 mr-1 text-gray-500 rounded-lg md:hidden hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
-              >
-                <span className="sr-only">Toggle search</span>
-                <svg
-                  aria-hidden="true"
-                  className="w-6 h-6"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    clipRule="evenodd"
-                    fillRule="evenodd"
-                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                  ></path>
-                </svg>
-              </button>
-
-              <button
-                type="button"
                 className="flex mx-3 text-sm bg-gray-800 rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
                 id="user-menu-button"
                 aria-expanded="false"
-                data-dropdown-toggle="dropdown"
+                onClick={toggleDropdown}
               >
                 <span className="sr-only">Open user menu</span>
                 <img
@@ -88,33 +129,41 @@ export default function AdminLayout() {
                   alt="user photo"
                 />
               </button>
-              {/* <!-- Dropdown menu --> */}
-              <div
-                className="hidden z-50 my-4 w-56 text-base list-none bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 rounded-xl"
-                id="dropdown"
-              >
-                <div className="py-3 px-4">
-                  <span className="block text-sm font-semibold text-gray-900 dark:text-white">
-                    Neil Sims
-                  </span>
-                  <span className="block text-sm text-gray-900 truncate dark:text-white">
-                    name@flowbite.com
-                  </span>
-                </div>
-                <ul
-                  className="py-1 text-gray-700 dark:text-gray-300"
-                  aria-labelledby="dropdown"
+              
+              {/* Dropdown Menu */}
+              {isDropdownOpen && (
+                <div
+                  className="absolute z-50 my-4 w-56 text-base list-none bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 rounded-xl top-12 right-4"
+                  id="dropdown"
                 >
-                  <li>
-                    <Link
-                      to="#"
-                      className="block py-2 px-4 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                    >
-                      Sign out
-                    </Link>
-                  </li>
-                </ul>
-              </div>
+                  <div className="py-3 px-4">
+                    <span className="block text-sm font-semibold text-gray-900 dark:text-white">
+                      Neil Sims
+                    </span>
+                    <span className="block text-sm text-gray-900 truncate dark:text-white">
+                      name@flowbite.com
+                    </span>
+                  </div>
+                  <ul
+                    className="py-1 text-gray-700 dark:text-gray-300"
+                    aria-labelledby="dropdown"
+                  >
+                    <li>
+                      <button
+                        onClick={handleLogout}
+                        disabled={loadingLogout}
+                        className={`block w-full text-left py-2 px-4 text-sm ${
+                          loadingLogout
+                            ? 'text-gray-400 bg-gray-200 cursor-not-allowed'
+                            : 'hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white'
+                        }`}
+                      >
+                        {loadingLogout ? 'Logging out...' : 'Logout'}
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              )}
             </div>
           </div>
         </nav>

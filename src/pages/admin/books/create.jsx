@@ -7,6 +7,17 @@ import { useState } from "react";
 export default function BookCreate() {
   const { genres, loading:loadingGenres } = useGenres();
   const { authors, loading:loadingAuthors } = useAuthors();
+
+  // const genresData = useGenres();
+  // const authorsData = useAuthors();
+
+  // // Mengakses data dan status loading
+  // const genres = genresData.genres;
+  // const loadingGenres = genresData.loading;
+
+  // const authors = authorsData.authors;
+  // const loadingAuthors = authorsData.loading;
+
   const [formData, setFormData] = useState({
     title: "",
     price: 0,
