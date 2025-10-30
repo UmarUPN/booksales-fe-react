@@ -1,9 +1,11 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { logout } from "../_services/auth";
+import { logout as apiLogout } from "../_services/auth";
 import { useState } from "react";
+import { useAuth } from "../_hooks/useAuth";
 
 export default function Navbar() {
   const navigate = useNavigate()
+  const { logout: contextLogout } = useAuth()
   const [loadingLogout, setLoadingLogout] = useState(false)
   const token = localStorage.getItem("accessToken")
   const userInfo = JSON.parse(localStorage.getItem("userInfo"))
@@ -14,12 +16,12 @@ export default function Navbar() {
 
     if (token) {
       try {
-        await logout({ token })
+        await apiLogout({ token })
       } catch (err) {
         console.error("Error saat logout:", err)
       } finally {
-        localStorage.removeItem("accessToken")
-        localStorage.removeItem("userInfo")
+        contextLogout();
+        
         setLoadingLogout(false)
         navigate("/login")
       }

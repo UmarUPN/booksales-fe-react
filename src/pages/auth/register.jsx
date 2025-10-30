@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { register, useDecodeToken } from "../../_services/auth";
+import { register } from "../../_services/auth";
+import { useAuth } from "../../_hooks/useAuth";
 
 export default function Register() {
   const navigate = useNavigate()
+  const { isAuthenticated, user } = useAuth()
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -11,34 +13,24 @@ export default function Register() {
     password: ""
   })
 
-  const [errorRegister, setErrorRegister] = useState(null);
-  const [errorName, setErrorName] = useState(null);
-  const [errorEmail, setErrorEmail] = useState(null);
-  const [errorUsername, setErrorUsername] = useState(null);
-  const [errorPassword, setErrorPassword] = useState(null);
+  const [errors, setErrors] = useState({
+    register: null,
+    name: null,
+    email: null,
+    username: null,
+    password: null,
+  });
+
   const [loadingSignUp, setLoadingSignUp] = useState(false);
   const [loadingCheckAuth, setLoadingCheckAuth] = useState(true);
 
-  const token = localStorage.getItem("accessToken")
-  const decodedData = useDecodeToken(token)
-
   useEffect(() => {
-    const token = localStorage.getItem("accessToken")
-    const userInfo = localStorage.getItem("userInfo")
-
-    if (token && decodedData && decodedData.success && userInfo) {
-      try {
-        const parsedUser = JSON.parse(userInfo)
-        if (parsedUser?.role) {
-          navigate(parsedUser.role === "admin" ? "/admin" : "/")
-        }
-      } catch (err) {
-        console.error("Error parsing userInfo:", err)
-      }
+    if (isAuthenticated) {
+      navigate(user.role === "admin" ? "/admin" : "/")
     } else {
       setLoadingCheckAuth(false)
     }
-  }, [token, decodedData, navigate])
+  }, [isAuthenticated, user, navigate])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -52,11 +44,13 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoadingSignUp(true);
-    setErrorRegister(null);
-    setErrorName(null);
-    setErrorEmail(null);
-    setErrorUsername(null);
-    setErrorPassword(null);
+    setErrors({
+      register: null,
+      name: null,
+      email: null,
+      username: null,
+      password: null,
+    });
 
     try {
       const response = await register(formData);
@@ -66,12 +60,13 @@ export default function Register() {
     } catch (error) {
       const errData = error?.response?.data || {};
 
-      setErrorRegister(errData.message || "Pastikan semua field diisi dengan benar!");
-
-      setErrorName(errData?.errors?.name?.[0] || errData?.name?.[0] || null);
-      setErrorEmail(errData?.errors?.email?.[0] || errData?.email?.[0] || null);
-      setErrorUsername(errData?.errors?.username?.[0] || errData?.username?.[0] || null);
-      setErrorPassword(errData?.errors?.password?.[0] || errData?.password?.[0] || null);
+      setErrors({
+        register: errData.message || "Pastikan semua field diisi dengan benar!",
+        name: errData?.errors?.name?.[0] || errData?.name?.[0] || null,
+        email: errData?.errors?.email?.[0] || errData?.email?.[0] || null,
+        username: errData?.errors?.username?.[0] || errData?.username?.[0] || null,
+        password: errData?.errors?.password?.[0] || errData?.password?.[0] || null,
+      });
     } finally {
       setLoadingSignUp(false);
     }
@@ -95,8 +90,8 @@ export default function Register() {
                 Create an account
               </h1>
     
-              {errorRegister && (
-                <div className="text-red-500 text-sm">{errorRegister}</div>
+              {errors.register && (
+                <div className="text-red-500 text-sm">{errors.register}</div>
               )}
 
               <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6" action="#">
@@ -117,8 +112,8 @@ export default function Register() {
                     placeholder="Jon Doe"
                     // required
                   />
-                  {errorName && (
-                    <div className="text-red-500 text-sm">{errorName}</div>
+                  {errors.name && (
+                    <div className="text-red-500 text-sm">{errors.name}</div>
                   )}
                 </div>
                 <div>
@@ -138,8 +133,8 @@ export default function Register() {
                     placeholder="Name@example.com"
                     // required
                   />
-                  {errorEmail && (
-                    <div className="text-red-500 text-sm">{errorEmail}</div>
+                  {errors.email && (
+                    <div className="text-red-500 text-sm">{errors.email}</div>
                   )}
                 </div>
                 <div>
@@ -159,8 +154,8 @@ export default function Register() {
                     placeholder="Create username"
                     // required
                   />
-                  {errorUsername && (
-                    <div className="text-red-500 text-sm">{errorUsername}</div>
+                  {errors.username && (
+                    <div className="text-red-500 text-sm">{errors.username}</div>
                   )}
                 </div>
                 <div>
@@ -180,8 +175,8 @@ export default function Register() {
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-600 focus:border-indigo-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     // required
                   />
-                  {errorPassword && (
-                    <div className="text-red-500 text-sm">{errorPassword}</div>
+                  {errors.password && (
+                    <div className="text-red-500 text-sm">{errors.password}</div>
                   )}
                 </div>
                 <div className="flex items-start">

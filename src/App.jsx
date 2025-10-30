@@ -1,5 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom"
 import PublicLayout from "./layouts/public"
+import ProtectedRoute from "./_utils/PrivateRoutes";
 import AdminBooks from "./pages/admin/books"
 import Home from "./pages/public"
 import Books from "./pages/public/books"
@@ -16,52 +17,62 @@ import BookEdit from "./pages/admin/books/edit"
 import GenreEdit from "./pages/admin/genres/edit"
 import AuthorEdit from "./pages/admin/authors/edit"
 import ShowBook from "./pages/public/books/show"
+import { AuthProvider } from "./_utils/AuthProvider";
 
 function App() {
   return (
     <>
       <BrowserRouter>
-        <Routes>
+        <AuthProvider> {/* AuthProvider adalah pemberi konteks (Context Provider) yang menyimpan state global auth */}
+          <Routes>
 
-          {/* public */}
-          <Route element={<PublicLayout />}>
-            <Route index element={<Home />} />
+            {/* public */}
+            <Route element={<PublicLayout />}>
+              <Route index element={<Home />} />
 
-            <Route path="books">
-              <Route index element={<Books />} />
-              <Route path="show/:id" element={<ShowBook />} />
-            </Route>
-            
-          </Route>
-
-          {/* Auth */}
-          <Route path="login" element={<Login />} />
-          <Route path="register" element={<Register />} />
-
-          {/* Admin */}
-          <Route path="admin" element={<AdminLayout />}>
-            <Route index element={<Dashboard />} />
-
-            <Route path="authors">
-              <Route index element={<AdminAuthors />} />
-              <Route path="create" element={<AuthorCreate />} />
-              <Route path="edit/:id" element={<AuthorEdit />} />
+              <Route path="books">
+                <Route index element={<Books />} />
+                <Route path="show/:id" element={<ShowBook />} />
+              </Route>
+              
             </Route>
 
-            <Route path="genres">
-              <Route index element={<AdminGenres />} />
-              <Route path="create" element={<GenreCreate />} />
-              <Route path="edit/:id" element={<GenreEdit />} />
+            {/* Auth */}
+            <Route path="login" element={<Login />} />
+            <Route path="register" element={<Register />} />
+
+            {/* Admin */}
+            <Route 
+              path="admin" 
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <AdminLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<Dashboard />} />
+
+              <Route path="authors">
+                <Route index element={<AdminAuthors />} />
+                <Route path="create" element={<AuthorCreate />} />
+                <Route path="edit/:id" element={<AuthorEdit />} />
+              </Route>
+
+              <Route path="genres">
+                <Route index element={<AdminGenres />} />
+                <Route path="create" element={<GenreCreate />} />
+                <Route path="edit/:id" element={<GenreEdit />} />
+              </Route>
+
+              <Route path="books">
+                <Route index element={<AdminBooks />} />
+                <Route path="create" element={<BookCreate />} />
+                <Route path="edit/:id" element={<BookEdit />} />
+              </Route>
             </Route>
 
-            <Route path="books">
-              <Route index element={<AdminBooks />} />
-              <Route path="create" element={<BookCreate />} />
-              <Route path="edit/:id" element={<BookEdit />} />
-            </Route>
-          </Route>
-
-        </Routes>
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </>
   )

@@ -1,38 +1,31 @@
 import { Link, useNavigate } from "react-router-dom";
-import { login, useDecodeToken } from "../../_services/auth";
+import { login } from "../../_services/auth";
 import { useEffect, useState } from "react";
+import { useAuth } from "../../_hooks/useAuth";
 
 export default function Login() {
   const navigate = useNavigate()
+  const { isAuthenticated, user, login: contextLogin } = useAuth()
   const [formData, setFormData] = useState({
     email: "",
     password: ""
   })
 
-  const [error, setError] = useState(null);
+  const [errors, setErrors] = useState({
+    login: null,
+    email: null,
+    password: null,
+  });
   const [loadingSignIn, setLoadingSignIn] = useState(false);
   const [loadingCheckAuth, setLoadingCheckAuth] = useState(true);
 
-  const token = localStorage.getItem("accessToken")
-  const decodedData = useDecodeToken(token)
-
   useEffect(() => {
-    const token = localStorage.getItem("accessToken")
-    const userInfo = localStorage.getItem("userInfo")
-
-    if (token && decodedData && decodedData.success && userInfo) {
-      try {
-        const parsedUser = JSON.parse(userInfo)
-        if (parsedUser?.role) {
-          navigate(parsedUser.role === "admin" ? "/admin" : "/")
-        }
-      } catch (err) {
-        console.error("Error parsing userInfo:", err)
-      }
+    if (isAuthenticated) {
+      navigate(user.role === "admin" ? "/admin" : "/")
     } else {
       setLoadingCheckAuth(false)
     }
-  }, [token, decodedData, navigate])
+  }, [isAuthenticated, user, navigate])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -46,21 +39,27 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoadingSignIn(true)
-    setError(null)
+    setErrors({
+      login: null,
+      email: null,
+      password: null,
+    })
 
     try {
       const response = await login(formData)
       console.log(response)
 
-      localStorage.setItem("accessToken", response.token)
-      localStorage.setItem("userInfo", JSON.stringify(response.user))
+      contextLogin(response.token, response.user);
       
-      // setTimeout(() => {
-      //   navigate(response.user.role === "admin" ? "/admin" : "/")
-      // }, 100)
       navigate(response.user.role === "admin" ? "/admin" : "/")
     } catch (error) {
-      setError(error?.response?.data?.message)
+      const errData = error?.response?.data || {};
+
+      setErrors({
+        login: errData.message || "Pastikan semua field diisi dengan benar!",
+        email: errData?.errors?.email?.[0] || errData?.email?.[0] || null,
+        password: errData?.errors?.password?.[0] || errData?.password?.[0] || null,
+      });
     } finally {
       setLoadingSignIn(false)
     }
@@ -74,14 +73,6 @@ export default function Login() {
     )
   }
 
-  // console.log(decodedData)
-
-  // useEffect(() => {
-  //   if (token && decodedData && decodedData.success) {
-  //     navigate(decodedData.data.role === "admin" ? "/admin" : "/")
-  //   }
-  // }, [token, decodedData, navigate])
-
   return (
     <>
       <section className="bg-gray-50 dark:bg-gray-900">
@@ -92,8 +83,8 @@ export default function Login() {
                 Sign in to your account
               </h1>
 
-              {error && (
-                <div className="text-red-500 text-sm">{error}</div>
+              {errors.login && (
+                <div className="text-red-500 text-sm">{errors.login}</div>
               )}
 
               <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6" action="#">
@@ -114,6 +105,9 @@ export default function Login() {
                     placeholder="name@company.com"
                     required
                   />
+                  {errors.email && (
+                    <div className="text-red-500 text-sm">{errors.email}</div>
+                  )}
                 </div>
                 <div>
                   <label
@@ -132,6 +126,9 @@ export default function Login() {
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-600 focus:border-indigo-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     required
                   />
+                  {errors.password && (
+                    <div className="text-red-500 text-sm">{errors.password}</div>
+                  )}
                 </div>
                 <div className="flex items-start">
                   <div className="flex items-center h-5">

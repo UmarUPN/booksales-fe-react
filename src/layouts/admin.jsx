@@ -1,46 +1,13 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
-import { logout, useDecodeToken} from "../_services/auth";
-import { useEffect, useState } from "react";
+import { logout as apiLogout } from "../_services/auth";
+import { useState } from "react";
+import { useAuth } from "../_hooks/useAuth";
 
 export default function AdminLayout() {
   const navigate = useNavigate()
-  // const token = localStorage.getItem("accessToken")
-  // const decodedData = useDecodeToken(token)
-  const decodedData = useDecodeToken(localStorage.getItem("accessToken"))
+  const { logout: contextLogout } = useAuth()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [loadingLogout, setLoadingLogout] = useState(false)
-
-  useEffect(() => {
-    const token = localStorage.getItem("accessToken")
-    const userInfo = localStorage.getItem("userInfo")
-
-    // Kalau token/userInfo tidak ada, arahkan ke login
-    if (!token || !userInfo) {
-      navigate("/login")
-      return
-    }
-
-    try {
-      const parsedUser = JSON.parse(userInfo)
-      const role = parsedUser?.role?.toLowerCase()
-
-      // Redirect sesuai role
-      if (role !== "admin") {
-        navigate("/")
-      }
-    } catch (err) {
-      console.error("Error parsing userInfo:", err)
-      navigate("/login")
-    }
-  }, [decodedData, navigate])
-
-  // const handleLogout = async () => {
-  //   if (token) {
-  //     await logout({ token })
-  //     localStorage.removeItem("userInfo")
-  //   }
-  //   navigate("/login")
-  // }
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen)
@@ -52,12 +19,12 @@ export default function AdminLayout() {
 
     if (token) {
       try {
-        await logout({ token })
+        await apiLogout({ token })
       } catch (err) {
         console.error("Error saat logout:", err)
       } finally {
-        localStorage.removeItem("accessToken")
-        localStorage.removeItem("userInfo")
+        contextLogout();
+        
         setLoadingLogout(false)
         navigate("/login")
       }
@@ -68,8 +35,8 @@ export default function AdminLayout() {
     <>
       <div className="antialiased bg-gray-50 dark:bg-gray-900">
         <nav className="bg-white border-b border-gray-200 px-4 py-2.5 dark:bg-gray-800 dark:border-gray-700 fixed left-0 right-0 top-0 z-50">
-          <div className="flex flex-wrap justify-between items-center">
-            <div className="flex justify-start items-center">
+          <div className="flex flex-wrap items-center justify-between">
+            <div className="flex items-center justify-start">
               <button
                 data-drawer-target="drawer-navigation"
                 data-drawer-toggle="drawer-navigation"
@@ -109,7 +76,7 @@ export default function AdminLayout() {
                 className="flex items-center justify-between mr-4"
               >
                 <i className="fa-sharp fa-solid fa-book-open-reader fa-2xl" style={{ color: "#0062ff" }}></i>
-                <span className="self-center text-2xl ml-2 font-bold whitespace-nowrap dark:text-white">
+                <span className="self-center ml-2 text-2xl font-bold whitespace-nowrap dark:text-white">
                   BookSales
                 </span>
               </Link>
@@ -133,10 +100,10 @@ export default function AdminLayout() {
               {/* Dropdown Menu */}
               {isDropdownOpen && (
                 <div
-                  className="absolute z-50 my-4 w-56 text-base list-none bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600 rounded-xl top-12 right-4"
+                  className="absolute z-50 w-56 my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600 rounded-xl top-12 right-4"
                   id="dropdown"
                 >
-                  <div className="py-3 px-4">
+                  <div className="px-4 py-3">
                     <span className="block text-sm font-semibold text-gray-900 dark:text-white">
                       Neil Sims
                     </span>
@@ -171,11 +138,11 @@ export default function AdminLayout() {
         {/* <!-- Sidebar --> */}
 
         <aside
-          className="fixed top-0 left-0 z-40 w-64 h-screen pt-14 transition-transform -translate-x-full bg-white border-r border-gray-200 md:translate-x-0 dark:bg-gray-800 dark:border-gray-700"
+          className="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full bg-white border-r border-gray-200 pt-14 md:translate-x-0 dark:bg-gray-800 dark:border-gray-700"
           aria-label="Sidenav"
           id="drawer-navigation"
         >
-          <div className="overflow-y-auto py-5 px-3 h-full bg-white dark:bg-gray-800">
+          <div className="h-full px-3 py-5 overflow-y-auto bg-white dark:bg-gray-800">
             <ul className="space-y-2">
               <li>
                 <NavLink
@@ -386,8 +353,8 @@ export default function AdminLayout() {
           </div>
         </aside>
 
-        <main className="p-4 md:ml-64 h-auto pt-20">
-          <div className="border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-auto px-4 pt-4 pb-6">
+        <main className="h-auto p-4 pt-20 md:ml-64">
+          <div className="h-auto px-4 pt-4 pb-6 border-2 border-gray-300 border-dashed rounded-lg dark:border-gray-600">
             <Outlet />
           </div>
         </main>

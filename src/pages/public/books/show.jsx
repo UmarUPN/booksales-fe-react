@@ -1,16 +1,21 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useGenres } from "../../../_hooks/useGenres";
 import { useAuthors } from "../../../_hooks/useAuthors";
 import { useEffect, useState } from "react";
 import { showBook } from "../../../_services/books";
 import { bookImageStorage } from "../../../_api";
+import { createTransaction } from "../../../_services/transactions";
+import { useAuth } from "../../../_hooks/useAuth";
 
 export default function ShowBook() {
   const { id } = useParams()
+  const navigate = useNavigate()
+  const { isAuthenticated } = useAuth()
 
   const { getGenreName, loading:loadingGenres } = useGenres();
   const { getAuthorName, loading:loadingAuthors } = useAuthors();
-  const [book, setBook] = useState([])
+  const [book, setBook] = useState({})
+  const [quantity, setQuantity] = useState(1)
   
   const [loadingData, setLoadingData] = useState(true)
 
@@ -29,23 +34,44 @@ export default function ShowBook() {
 
     fetchData();
   }, [id])
-  
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!isAuthenticated) {
+      navigate("/login")
+      return
+    }
+
+    try {
+      const payload = {
+        book_id: id,
+        quantity: quantity
+      }
+
+      await createTransaction(payload);
+      alert("Pembelian Berhasil")
+    } catch (error) {
+      console.log(error)
+      throw error
+    }
+  }
 
   const loading = loadingAuthors || loadingGenres || loadingData;
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-gray-500 text-lg">Loading...</p>
+        <p className="text-lg text-gray-500">Loading...</p>
       </div>
     )
   }
 
   return (
     <>
-      <section className="py-8 bg-white md:py-16 dark:bg-gray-900 antialiased">
+      <section className="py-8 antialiased bg-white md:py-16 dark:bg-gray-900">
         <div className="max-w-screen-xl px-4 mx-auto 2xl:px-0">
           <div className="lg:grid lg:grid-cols-2 lg:gap-8 xl:gap-16">
-            <div className="shrink-0 max-w-md lg:max-w-lg mx-auto">
+            <div className="max-w-md mx-auto shrink-0 lg:max-w-lg">
               <img
                 className="w-full dark:hidden"
                 src={
@@ -150,34 +176,49 @@ export default function ShowBook() {
               </div>
 
               <div className="mt-6 sm:gap-4 sm:items-center sm:flex sm:mt-8">
-                <a
-                  href="#"
-                  title=""
-                  className="text-white mt-4 sm:mt-0 bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-indigo-600 dark:hover:bg-indigo-700 focus:outline-none dark:focus:ring-indigo-800 flex items-center justify-center"
-                  role="button"
-                >
-                  <svg
-                    className="w-5 h-5 -ms-2 me-2"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M4 4h1.5L8 16m0 0h8m-8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm.75-3H7.5M11 7H6.312M17 4v6m-3-3h6"
+                <form onSubmit={handleSubmit} className="mt-6 space-y-4 sm:mt-8">
+                  <div>
+                    <label 
+                      htmlFor="quantity" 
+                      className="block text-sm font-medium text-gray-700 dark:text-white">Jumlah</label>
+                    <input 
+                      type="number" 
+                      id="quantity" 
+                      name="quantity" 
+                      value={quantity}
+                      min={1} 
+                      onChange={(e) => setQuantity(e.target.value)} 
+                      className="block w-24 px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm dark:bg-gray-800 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" 
                     />
-                  </svg>
-                  Add to cart
-                </a>
+                  </div>
+                  <button
+                    type="submit"
+                    className="text-white mt-4 sm:mt-0 bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-indigo-600 dark:hover:bg-indigo-700 focus:outline-none dark:focus:ring-indigo-800 flex items-center justify-center"
+                  >
+                    <svg
+                      className="w-5 h-5 -ms-2 me-2"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M4 4h1.5L8 16m0 0h8m-8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm.75-3H7.5M11 7H6.312M17 4v6m-3-3h6"
+                      />
+                    </svg>
+                    Buy
+                  </button>
+                </form>
+                
               </div>
 
-              <hr className="my-6 md:my-8 border-gray-200 dark:border-gray-800" />
+              <hr className="my-6 border-gray-200 md:my-8 dark:border-gray-800" />
 
               <p className="mb-6 text-gray-500 dark:text-gray-400">
                 {book.description}
