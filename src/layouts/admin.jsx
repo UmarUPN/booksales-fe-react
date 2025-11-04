@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 
 export default function AdminLayout() {
   const navigate = useNavigate()
-  // const token = localStorage.getItem("accessToken")
-  // const decodedData = useDecodeToken(token)
   const decodedData = useDecodeToken(localStorage.getItem("accessToken"))
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [loadingLogout, setLoadingLogout] = useState(false)
@@ -33,14 +31,6 @@ export default function AdminLayout() {
       navigate("/login")
     }
   }, [decodedData, navigate])
-
-  // const handleLogout = async () => {
-  //   if (token) {
-  //     await logout({ token })
-  //     localStorage.removeItem("userInfo")
-  //   }
-  //   navigate("/login")
-  // }
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen)

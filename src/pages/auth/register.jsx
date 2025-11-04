@@ -102,7 +102,7 @@ export default function Register() {
               <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6" action="#">
                 <div>
                   <label
-                    htmlFor="email"
+                    htmlFor="name"
                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                   >
                     Full Name
@@ -144,7 +144,7 @@ export default function Register() {
                 </div>
                 <div>
                   <label
-                    htmlFor="name"
+                    htmlFor="username"
                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                   >
                     Username

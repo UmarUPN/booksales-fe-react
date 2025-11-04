@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useAuthors } from "../../../_hooks/useAuthors";
 import { useBooks } from "../../../_hooks/useBooks";
 import { useGenres } from "../../../_hooks/useGenres";
-import { bookImageStorage } from "../../../_api";
+import { ImageStorage } from "../../../_api";
 
 export default function Books() {
   const { getAuthorName, loading: loadingAuthors} = useAuthors();
@@ -35,8 +35,8 @@ export default function Books() {
                             className="mx-auto h-full"
                             src={
                               book.cover_photo
-                              ? `${bookImageStorage}/books/${book.cover_photo}`
-                              : `${bookImageStorage}/book-cover-placeholder.png`
+                              ? `${ImageStorage}/books/${book.cover_photo}`
+                              : `${ImageStorage}/book-cover-placeholder.png`
                             }
                             alt="Book cover"
                           />

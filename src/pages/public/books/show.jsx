@@ -3,7 +3,7 @@ import { useGenres } from "../../../_hooks/useGenres";
 import { useAuthors } from "../../../_hooks/useAuthors";
 import { useEffect, useState } from "react";
 import { showBook } from "../../../_services/books";
-import { bookImageStorage } from "../../../_api";
+import { ImageStorage } from "../../../_api";
 
 export default function ShowBook() {
   const { id } = useParams()
@@ -50,8 +50,8 @@ export default function ShowBook() {
                 className="w-full dark:hidden"
                 src={
                   book.cover_photo
-                  ? `${bookImageStorage}/books/${book.cover_photo}`
-                  : `${bookImageStorage}/book-cover-placeholder.png`
+                  ? `${ImageStorage}/books/${book.cover_photo}`
+                  : `${ImageStorage}/book-cover-placeholder.png`
                 }
                 alt="Book cover"
               />
