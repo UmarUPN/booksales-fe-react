@@ -13,26 +13,34 @@ export default function Login() {
   const [loadingSignIn, setLoadingSignIn] = useState(false);
   const [loadingCheckAuth, setLoadingCheckAuth] = useState(true);
 
-  const token = localStorage.getItem("accessToken")
-  const decodedData = useDecodeToken(token)
+  const decodedData = useDecodeToken(localStorage.getItem("accessToken"))
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken")
     const userInfo = localStorage.getItem("userInfo")
 
-    if (token && decodedData && decodedData.success && userInfo) {
-      try {
-        const parsedUser = JSON.parse(userInfo)
-        if (parsedUser?.role) {
-          navigate(parsedUser.role === "admin" ? "/admin" : "/")
+    console.log(decodedData)
+    if (decodedData?.success) {
+      if (token && userInfo) {
+        try {
+          const parsedUser = JSON.parse(userInfo)
+          if (parsedUser?.role) {
+            navigate(parsedUser.role === "admin" ? "/admin" : "/")
+            return
+          }
+        } catch (err) {
+          console.error("Error parsing userInfo:", err)
+          navigate("/")
+          return
         }
-      } catch (err) {
-        console.error("Error parsing userInfo:", err)
+      } else {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("userInfo");
       }
-    } else {
-      setLoadingCheckAuth(false)
     }
-  }, [token, decodedData, navigate])
+    setLoadingCheckAuth(false)
+  }, [decodedData, navigate])
+
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -55,9 +63,6 @@ export default function Login() {
       localStorage.setItem("accessToken", response.token)
       localStorage.setItem("userInfo", JSON.stringify(response.user))
       
-      // setTimeout(() => {
-      //   navigate(response.user.role === "admin" ? "/admin" : "/")
-      // }, 100)
       navigate(response.user.role === "admin" ? "/admin" : "/")
     } catch (error) {
       setError(error?.response?.data?.message)

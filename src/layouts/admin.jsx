@@ -5,17 +5,29 @@ import { useEffect, useState } from "react";
 export default function AdminLayout() {
   const navigate = useNavigate()
   const decodedData = useDecodeToken(localStorage.getItem("accessToken"))
+  const user = JSON.parse(localStorage.getItem("userInfo"))
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [loadingCheckAuth, setLoadingCheckAuth] = useState(true)
   const [loadingLogout, setLoadingLogout] = useState(false)
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken")
     const userInfo = localStorage.getItem("userInfo")
 
-    // Kalau token/userInfo tidak ada, arahkan ke login
-    if (!token || !userInfo) {
+    console.log(decodedData)
+    if (!decodedData?.success) {
+      localStorage.removeItem("accessToken")
+      localStorage.removeItem("userInfo")
       navigate("/login")
       return
+    }
+
+    // Kalau token/userInfo tidak ada, arahkan ke login
+    if (!token || !userInfo) {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("userInfo");
+      navigate("/login");
+      return;
     }
 
     try {
@@ -25,10 +37,12 @@ export default function AdminLayout() {
       // Redirect sesuai role
       if (role !== "admin") {
         navigate("/")
+      } else {
+        setLoadingCheckAuth(false)
       }
     } catch (err) {
       console.error("Error parsing userInfo:", err)
-      navigate("/login")
+      navigate("/")
     }
   }, [decodedData, navigate])
 
@@ -52,6 +66,14 @@ export default function AdminLayout() {
         navigate("/login")
       }
     }
+  }
+
+  if (loadingCheckAuth) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-gray-500 text-lg">Loading...</p>
+      </div>
+    )
   }
 
   return (
@@ -127,11 +149,14 @@ export default function AdminLayout() {
                   id="dropdown"
                 >
                   <div className="py-3 px-4">
-                    <span className="block text-sm font-semibold text-gray-900 dark:text-white">
-                      Neil Sims
+                    <span className="block text-sm mb-1 font-semibold text-gray-900 dark:text-white">
+                      {user?.name}
                     </span>
-                    <span className="block text-sm text-gray-900 truncate dark:text-white">
-                      name@flowbite.com
+                    <span className="block text-sm mb-1 font-semibold text-gray-900 dark:text-white">
+                      {user?.username}
+                    </span>
+                    <span className="block text-sm mb-1 text-gray-900 truncate dark:text-white">
+                      {user?.email}
                     </span>
                   </div>
                   <ul
@@ -169,7 +194,8 @@ export default function AdminLayout() {
             <ul className="space-y-2">
               <li>
                 <NavLink
-                  to="admin"
+                  to="/admin"
+                  end // supaya ketika link lain aktif, link ini tidak aktif
                   className={({ isActive }) =>
                     `flex items-center p-2 text-base font-medium rounded-lg group transition duration-75
                     ${
@@ -189,7 +215,7 @@ export default function AdminLayout() {
                     <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z"></path>
                     <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z"></path>
                   </svg>
-                  <span className="ml-3">Overview</span>
+                  <span className="ml-3">Dashboard</span>
                 </NavLink>
               </li>
 

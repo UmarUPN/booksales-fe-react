@@ -7,7 +7,11 @@ export const getAuthors = async () => {
 
 export const createAuthor = async (data) => {
   try {
-    const response = await API.post("/authors", data)
+    const response = await API.post("/authors", data, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+      }
+    })
     return response.data
   } catch (error) {
     console.log(error);
@@ -27,7 +31,11 @@ export const showAuthor = async (id) => {
 
 export const updateAuthor = async (id, data) => {
   try {
-    const response = await API.post(`/authors/${id}`, data)
+    const response = await API.post(`/authors/${id}`, data, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+      }
+    })
     return response
   } catch (error) {
     console.log(error);
@@ -37,7 +45,11 @@ export const updateAuthor = async (id, data) => {
 
 export const deleteAuthor = async (id) => {
   try {
-    await API.delete(`/authors/${id}`)
+    await API.delete(`/authors/${id}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+      }
+    })
   } catch (error) {
     console.log(error);
     throw error

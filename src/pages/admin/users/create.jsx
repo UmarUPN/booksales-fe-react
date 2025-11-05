@@ -9,9 +9,21 @@ export default function UserCreate() {
     username: "",
     password: "",
     role: "",
-    notelp: 0,
+    notelp: "",
     photo: null,
   });
+
+  const [errors, setErrors] = useState({
+    create: null,
+    name: null,
+    email: null,
+    username: null,
+    password: null,
+    role: null,
+    notelp: null,
+    photo: null,
+  });
+  const [loadingCreate, setLoadingCreate] = useState(false);
 
   const navigate = useNavigate()
 
@@ -26,18 +38,47 @@ export default function UserCreate() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoadingCreate(true);
+    setErrors({
+      create: null,
+      name: null,
+      email: null,
+      username: null,
+      password: null,
+      role: null,
+      notelp: null,
+      photo: null,
+    });
 
     try {
       const payload = new FormData();
       for (const key in formData) {
-        payload.append(key, formData[key]);
+        if (key === "photo") {
+          if (formData.photo instanceof File) {
+            payload.append("photo", formData.photo);
+          }
+        } else {
+          payload.append(key, formData[key]);
+        }
       }
 
       await createUser(payload);
       navigate("/admin/users");
     } catch (error) {
-      console.error("Failed to create user:", error)
-      alert("Error creating user")
+      const errData = error?.response?.data || {};
+
+      setErrors({
+        create: errData.message || "Pastikan semua field diisi dengan benar!",
+        name: errData?.errors?.name?.[0] || errData?.name?.[0] || null,
+        email: errData?.errors?.email?.[0] || errData?.email?.[0] || null,
+        username: errData?.errors?.username?.[0] || errData?.username?.[0] || null,
+        password: errData?.errors?.password?.[0] || errData?.password?.[0] || null,
+        role: errData?.errors?.role?.[0] || errData?.role?.[0] || null,
+        notelp: errData?.errors?.notelp?.[0] || errData?.notelp?.[0] || null,
+        photo: errData?.errors?.photo?.[0] || errData?.photo?.[0] || null,
+      });
+    } finally {
+      setLoadingCreate(false)
     }
   }
 
@@ -48,14 +89,19 @@ export default function UserCreate() {
           <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
             Create New User
           </h2>
+
+          {errors.create && (
+            <div className="text-red-500 text-sm">{errors.create}</div>
+          )}
+          
           <form onSubmit={handleSubmit}>
             <div className="grid gap-4 mb-4 sm:grid-cols-2 sm:gap-6 sm:mb-5">
               <div className="sm:col-span-2">
                 <label
-                  for="name"
+                  htmlFor="name"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
-                  Name
+                  Full Name
                 </label>
                 <input
                   type="text"
@@ -67,10 +113,13 @@ export default function UserCreate() {
                   placeholder="John Doe"
                   // required=""
                 />
+                {errors.name && (
+                  <div className="text-red-500 text-sm">{errors.name}</div>
+                )}
               </div>
               <div className="sm:col-span-2">
                 <label
-                  for="email"
+                  htmlFor="email"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   Email
@@ -85,10 +134,13 @@ export default function UserCreate() {
                   placeholder="example@mail.com"
                   // required=""
                 />
+                {errors.email && (
+                  <div className="text-red-500 text-sm">{errors.email}</div>
+                )}
               </div>
               <div className="sm:col-span-2">
                 <label
-                  for="username"
+                  htmlFor="username"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   Username
@@ -103,10 +155,13 @@ export default function UserCreate() {
                   placeholder="JohnDoe"
                   // required=""
                 />
+                {errors.username && (
+                  <div className="text-red-500 text-sm">{errors.username}</div>
+                )}
               </div>
               <div className="sm:col-span-2">
                 <label
-                  for="password"
+                  htmlFor="password"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   Password
@@ -121,10 +176,13 @@ export default function UserCreate() {
                   placeholder="••••••••"
                   // required=""
                 />
+                {errors.password && (
+                  <div className="text-red-500 text-sm">{errors.password}</div>
+                )}
               </div>
               <div>
                 <label
-                  for="role"
+                  htmlFor="role"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   Role
@@ -140,10 +198,13 @@ export default function UserCreate() {
                   <option value="admin">Admin</option>
                   <option value="customer">Customer</option>
                 </select>
+                {errors.role && (
+                  <div className="text-red-500 text-sm">{errors.role}</div>
+                )}
               </div>
-              <div className="sm:col-span-2">
+              <div>
                 <label
-                  for="notelp"
+                  htmlFor="notelp"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   No. Telepon
@@ -158,10 +219,13 @@ export default function UserCreate() {
                   placeholder="0123456789"
                   // required=""
                 />
+                {errors.notelp && (
+                  <div className="text-red-500 text-sm">{errors.notelp}</div>
+                )}
               </div>
               <div className="w-full">
                 <label
-                  for="photo"
+                  htmlFor="photo"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   Profile Photo
@@ -175,21 +239,27 @@ export default function UserCreate() {
                   accept="image/*"
                   // required=""
                 />
+                {errors.photo && (
+                  <div className="text-red-500 text-sm">{errors.photo}</div>
+                )}
               </div>
             </div>
             <div className="flex items-center space-x-4">
               <button
                 type="submit"
-                className="text-white bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800"
+                disabled={loadingCreate}
+                className={`cursor-pointer text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800 ${
+                  loadingCreate ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
               >
-                Create User
+                {loadingCreate ? 'Creating user...' : 'Create user'}
               </button>
-              <button
+              {/* <button
                 type="reset"
                 className="text-gray-600 inline-flex items-center hover:text-white border border-gray-600 hover:bg-gray-600 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-gray-500 dark:text-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-900"
               >
                 Reset
-              </button>
+              </button> */}
             </div>
           </form>
         </div>

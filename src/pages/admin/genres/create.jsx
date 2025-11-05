@@ -9,6 +9,7 @@ export default function GenreCreate() {
   });
 
   const navigate = useNavigate()
+  const [loadingCreate, setLoadingCreate] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -31,6 +32,7 @@ export default function GenreCreate() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoadingCreate(true);
 
     try {
       const payload = new FormData();
@@ -44,6 +46,8 @@ export default function GenreCreate() {
       console.error("Failed to create genre:", error)
       console.log(error)
       alert("Error creating genre")
+    } finally {
+      setLoadingCreate(false);
     }
   }
 
@@ -58,7 +62,7 @@ export default function GenreCreate() {
             <div className="grid gap-4 mb-4 sm:grid-cols-2 sm:gap-6 sm:mb-5">
               <div className="sm:col-span-2">
                 <label
-                  for="name"
+                  htmlFor="name"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   Genre Name
@@ -76,7 +80,7 @@ export default function GenreCreate() {
               </div>
               <div className="sm:col-span-2">
                 <label
-                  for="description"
+                  htmlFor="description"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   Description
@@ -96,16 +100,19 @@ export default function GenreCreate() {
             <div className="flex items-center space-x-4">
               <button
                 type="submit"
-                className="text-white bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800"
+                disabled={loadingCreate}
+                className={`cursor-pointer text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800 ${
+                  loadingCreate ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
               >
-                Create Genre
+                {loadingCreate ? 'Creating genre...' : 'Create genre'}
               </button>
-              <button
+              {/* <button
                 type="reset"
                 className="text-gray-600 inline-flex items-center hover:text-white border border-gray-600 hover:bg-gray-600 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-gray-500 dark:text-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-900"
               >
                 Reset
-              </button>
+              </button> */}
             </div>
           </form>
         </div>

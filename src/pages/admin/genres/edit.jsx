@@ -7,6 +7,7 @@ export default function GenreEdit() {
   const navigate = useNavigate()
 
   const [loadingData, setLoadingData] = useState(true)
+  const [loadingEdit, setLoadingEdit] = useState(false)
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -44,6 +45,7 @@ export default function GenreEdit() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoadingEdit(true);
 
     try {
       const payload = new FormData();
@@ -57,6 +59,8 @@ export default function GenreEdit() {
       console.error("Failed to update genre:", error)
       console.log(error)
       alert("Error update genre")
+    } finally {
+      setLoadingEdit(false);
     }
   }
 
@@ -79,7 +83,7 @@ export default function GenreEdit() {
             <div className="grid gap-4 mb-4 sm:grid-cols-2 sm:gap-6 sm:mb-5">
               <div className="sm:col-span-2">
                 <label
-                  for="name"
+                  htmlFor="name"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   Genre Name
@@ -97,7 +101,7 @@ export default function GenreEdit() {
               </div>
               <div className="sm:col-span-2">
                 <label
-                  for="description"
+                  htmlFor="description"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   Description
@@ -117,9 +121,12 @@ export default function GenreEdit() {
             <div className="flex items-center space-x-4">
               <button
                 type="submit"
-                className="text-white bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800"
+                disabled={loadingEdit}
+                className={`cursor-pointer text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800 ${
+                  loadingEdit ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
               >
-                Update Genre
+                {loadingEdit ? 'Updating data...' : 'Update data'}
               </button>
             </div>
           </form>

@@ -7,6 +7,7 @@ export default function AuthorEdit() {
   const navigate = useNavigate()
 
   const [loadingData, setLoadingData] = useState(true)
+  const [loadingEdit, setLoadingEdit] = useState(false)
   const [formData, setFormData] = useState({
     name: "",
     photo: null,
@@ -46,6 +47,7 @@ export default function AuthorEdit() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoadingEdit(true);
 
     try {
       const payload = new FormData();
@@ -62,8 +64,10 @@ export default function AuthorEdit() {
       await updateAuthor(id, payload);
       navigate("/admin/authors");
     } catch (error) {
-      console.error("Failed to create author:", error)
-      alert("Error creating author")
+      console.error("Failed to update author:", error)
+      alert("Error update author")
+    } finally {
+      setLoadingEdit(false);
     }
   }
 
@@ -86,7 +90,7 @@ export default function AuthorEdit() {
             <div className="grid gap-4 mb-4 sm:grid-cols-2 sm:gap-6 sm:mb-5">
               <div className="sm:col-span-2">
                 <label
-                  for="name"
+                  htmlFor="name"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   Author Name
@@ -104,7 +108,7 @@ export default function AuthorEdit() {
               </div>
               <div className="w-full">
                 <label
-                  for="photo"
+                  htmlFor="photo"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   Author Photo
@@ -120,7 +124,7 @@ export default function AuthorEdit() {
               </div>
               <div className="sm:col-span-2">
                 <label
-                  for="bio"
+                  htmlFor="bio"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   Bio
@@ -140,9 +144,12 @@ export default function AuthorEdit() {
             <div className="flex items-center space-x-4">
               <button
                 type="submit"
-                className="text-white bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800"
+                disabled={loadingEdit}
+                className={`cursor-pointer text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800 ${
+                  loadingEdit ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
               >
-                Update Author
+                {loadingEdit ? 'Updating data...' : 'Update data'}
               </button>
             </div>
           </form>

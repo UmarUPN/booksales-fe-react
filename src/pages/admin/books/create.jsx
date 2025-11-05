@@ -29,6 +29,7 @@ export default function BookCreate() {
   });
 
   const navigate = useNavigate()
+  const [loadingCreate, setLoadingCreate] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -41,6 +42,7 @@ export default function BookCreate() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoadingCreate(true);
 
     try {
       const payload = new FormData();
@@ -53,6 +55,8 @@ export default function BookCreate() {
     } catch (error) {
       console.error("Failed to create book:", error)
       alert("Error creating book")
+    } finally {
+      setLoadingCreate(false);
     }
   }
 
@@ -76,7 +80,7 @@ export default function BookCreate() {
             <div className="grid gap-4 mb-4 sm:grid-cols-2 sm:gap-6 sm:mb-5">
               <div className="sm:col-span-2">
                 <label
-                  for="title"
+                  htmlFor="title"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   Title
@@ -94,7 +98,7 @@ export default function BookCreate() {
               </div>
               <div className="w-full">
                 <label
-                  for="price"
+                  htmlFor="price"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   Price
@@ -112,7 +116,7 @@ export default function BookCreate() {
               </div>
               <div className="w-full">
                 <label
-                  for="stock"
+                  htmlFor="stock"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   Stock
@@ -130,7 +134,7 @@ export default function BookCreate() {
               </div>
               <div>
                 <label
-                  for="genre_id"
+                  htmlFor="genre_id"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   Genre
@@ -150,7 +154,7 @@ export default function BookCreate() {
               </div>
               <div>
                 <label
-                  for="author_id"
+                  htmlFor="author_id"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   Author
@@ -170,7 +174,7 @@ export default function BookCreate() {
               </div>
               <div className="w-full">
                 <label
-                  for="cover_photo"
+                  htmlFor="cover_photo"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   Cover Photo
@@ -187,7 +191,7 @@ export default function BookCreate() {
               </div>
               <div className="sm:col-span-2">
                 <label
-                  for="description"
+                  htmlFor="description"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
                   Description
@@ -207,16 +211,19 @@ export default function BookCreate() {
             <div className="flex items-center space-x-4">
               <button
                 type="submit"
-                className="text-white bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800"
+                disabled={loadingCreate}
+                className={`cursor-pointer text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800 ${
+                  loadingCreate ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
               >
-                Create Book
+                {loadingCreate ? 'Creating book...' : 'Create book'}
               </button>
-              <button
+              {/* <button
                 type="reset"
                 className="text-gray-600 inline-flex items-center hover:text-white border border-gray-600 hover:bg-gray-600 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:border-gray-500 dark:text-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-900"
               >
                 Reset
-              </button>
+              </button> */}
             </div>
           </form>
         </div>

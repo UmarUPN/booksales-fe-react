@@ -6,7 +6,6 @@ import Books from "./pages/public/books"
 import Login from "./pages/auth/login"
 import Register from "./pages/auth/register"
 import AdminLayout from "./layouts/admin"
-import Dashboard from "./pages/admin"
 import BookCreate from "./pages/admin/books/create"
 import AdminAuthors from "./pages/admin/authors"
 import AuthorCreate from "./pages/admin/authors/create"
@@ -19,6 +18,14 @@ import ShowBook from "./pages/public/books/show"
 import AdminUsers from "./pages/admin/users"
 import UserCreate from "./pages/admin/users/create"
 import UserEdit from "./pages/admin/users/edit"
+import Cart from "./pages/public/cart"
+import AdminTransactions from "./pages/admin/transactions"
+import Transactions from "./pages/public/transaction"
+import { ToastContainer } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css";
+import About from "./pages/public/about"
+import Contact from "./pages/public/contact"
+import AdminDashboard from "./pages/admin"
 
 function App() {
   return (
@@ -34,6 +41,11 @@ function App() {
               <Route index element={<Books />} />
               <Route path="show/:id" element={<ShowBook />} />
             </Route>
+
+            <Route path="cart" element={<Cart />} />
+            <Route path="transactions" element={<Transactions />} />
+            <Route path="about" element={<About />} />
+            <Route path="contact" element={<Contact />} />
             
           </Route>
 
@@ -43,8 +55,9 @@ function App() {
 
           {/* Admin */}
           <Route path="admin" element={<AdminLayout />}>
-            <Route index element={<Dashboard />} />
+            <Route index element={<AdminDashboard />} />
 
+            <Route path="transactions" element={<AdminTransactions />} />
             <Route path="users">
               <Route index element={<AdminUsers />} />
               <Route path="create" element={<UserCreate />} />
@@ -72,6 +85,16 @@ function App() {
 
         </Routes>
       </BrowserRouter>
+
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnHover
+        draggable
+      />
     </>
   )
 }
