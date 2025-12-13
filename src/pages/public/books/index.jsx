@@ -171,7 +171,7 @@ export default function Books() {
                         )}
                       </div>
 
-                      {/* Buttons - No bottom padding */}
+                      {/* Buttons */}
                       <div className="grid grid-cols-2 gap-2 mt-4">
                         <Link
                           to={`/books/show/${book.id}`}

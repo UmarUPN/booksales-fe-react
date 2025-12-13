@@ -26,6 +26,7 @@ import "react-toastify/dist/ReactToastify.css";
 import About from "./pages/public/about"
 import Contact from "./pages/public/contact"
 import AdminDashboard from "./pages/admin"
+import TransactionShow from "./pages/public/transaction/show"
 
 function App() {
   return (
@@ -43,7 +44,12 @@ function App() {
             </Route>
 
             <Route path="cart" element={<Cart />} />
-            <Route path="transactions" element={<Transactions />} />
+
+            <Route path="transactions">
+              <Route index element={<Transactions />} />
+              <Route path="show/:id" element={<TransactionShow />} />
+            </Route>
+
             <Route path="about" element={<About />} />
             <Route path="contact" element={<Contact />} />
             

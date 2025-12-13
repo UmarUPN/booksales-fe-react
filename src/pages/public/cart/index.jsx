@@ -94,7 +94,7 @@ export default function Cart() {
     try {
       const transaction = await createTransaction();
       toast.success(`Order ${transaction.transaction_code} created successfully! Please complete your payment.`);
-      navigate("/transactions");
+      navigate("/transactions/show/" + transaction.id);
     } catch (error) {
       console.error("Checkout error:", error);
       toast.error(error.response?.data?.message || "Failed to create order");

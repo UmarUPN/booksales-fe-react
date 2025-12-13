@@ -1,17 +1,13 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { useTransactions } from "../../../_hooks/useTransactions";
-import {
-  getTransactionDetail,
-  updateTransactionStatus,
-} from "../../../_services/transactions";
+import { updateTransactionStatus } from "../../../_services/transactions";
 import { formatCurrencyWithDecimal } from "../../../_utils/formatCurrency";
+import { Link } from "react-router-dom";
 
 export default function Transactions() {
   const { transactions, loading, setTransactions } = useTransactions();
   const [selectedStatus, setSelectedStatus] = useState("all");
-  const [selectedTransaction, setSelectedTransaction] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [updatingTransaction, setUpdatingTransaction] = useState(null);
@@ -60,17 +56,6 @@ export default function Transactions() {
       setUpdatingTransaction(null);
       setIsPaymentModalOpen(false);
       setIsCancelModalOpen(false);
-    }
-  };
-
-  const handleViewDetails = async (transactionId) => {
-    try {
-      const transaction = await getTransactionDetail(transactionId);
-      setSelectedTransaction(transaction);
-      setIsModalOpen(true);
-    } catch (error) {
-      console.error("Error fetching transaction details:", error);
-      toast.error("Failed to load transaction details");
     }
   };
 
@@ -165,12 +150,12 @@ export default function Transactions() {
                         </span>
                       </td>
                       <td className="px-4 py-3 flex items-center justify-end space-x-2">
-                        <button
-                          onClick={() => handleViewDetails(transaction.id)}
+                        <Link
+                          to={`/transactions/show/${transaction.id}`}
                           className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
                         >
                           Details
-                        </button>
+                        </Link>
 
                         {transaction.status === "pending" && (
                           <>
@@ -211,109 +196,6 @@ export default function Transactions() {
           </div>
         </div>
       </section>
-
-      {/* Transaction Detail Modal */}
-      {isModalOpen && selectedTransaction && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  Transaction Details
-                </h3>
-                <button
-                  onClick={() => setIsModalOpen(false)}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                >
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Transaction Code
-                  </p>
-                  <p className="font-semibold text-gray-900 dark:text-white">
-                    {selectedTransaction.transaction_code}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Date
-                  </p>
-                  <p className="font-semibold text-gray-900 dark:text-white">
-                    {new Date(selectedTransaction.created_at).toLocaleString()}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Status
-                  </p>
-                  <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      statusColors[selectedTransaction.status]
-                    }`}
-                  >
-                    {selectedTransaction.status}
-                  </span>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Total Amount
-                  </p>
-                  <p className="font-semibold text-gray-900 dark:text-white">
-                    {formatCurrencyWithDecimal(selectedTransaction.total_amount)}
-                  </p>
-                </div>
-              </div>
-
-              <div className="border-t border-gray-200 dark:border-gray-600 pt-4">
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-3">
-                  Items
-                </h4>
-                <div className="space-y-3">
-                  {selectedTransaction.items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
-                    >
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          {item.book_title}
-                        </p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          by {item.author_name}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-semibold text-gray-900 dark:text-white">
-                          {formatCurrencyWithDecimal(item.price)}
-                        </p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Qty: {item.quantity}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Payment Confirmation Modal */}
       {isPaymentModalOpen && processingTransaction && (
